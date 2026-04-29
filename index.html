@@ -314,8 +314,22 @@ body.light .stats-strip { background: rgba(255,255,255,0.6); }
 .gpill:hover { background: var(--surface-2); color: var(--text); border-color: var(--brand); transform: translateY(-2px); }
 .gpill.on { background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: #fff; border-color: transparent; box-shadow: 0 8px 20px var(--brand-glow); }
 
-.carousel { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 24px; padding-top: 10px; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; scroll-behavior: smooth; }
-.carousel::-webkit-scrollbar { display: none; }
+/* ── MARQUEE CAROUSEL ── */
+@keyframes marqueeSlide {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.slider-wrap { overflow: hidden; padding: 10px 0 8px; position: relative; }
+.slider-wrap::before, .slider-wrap::after {
+  content: ''; position: absolute; top: 0; width: 80px; height: 100%; z-index: 10; pointer-events: none;
+}
+.slider-wrap::before { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
+.slider-wrap::after  { right: 0; background: linear-gradient(to left,  var(--bg), transparent); }
+.slider-track {
+  display: flex; gap: 20px; width: max-content;
+  animation: marqueeSlide 50s linear infinite;
+  will-change: transform;
+}
 .c-card {
   flex-shrink: 0; width: 220px; scroll-snap-align: start;
   border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
@@ -788,10 +802,12 @@ body.light .stats-strip { background: rgba(255,255,255,0.6); }
         <button class="gpill" onclick="filterG(this,'Horror')">Horror</button>
         <button class="gpill" onclick="filterG(this,'Romance')">Romance</button>
       </div>
-      <div class="carousel" id="carousel">
-        <div class="c-shimmer shimmer"></div><div class="c-shimmer shimmer"></div>
-        <div class="c-shimmer shimmer"></div><div class="c-shimmer shimmer"></div>
-        <div class="c-shimmer shimmer"></div><div class="c-shimmer shimmer"></div>
+      <div class="slider-wrap" id="sliderWrap">
+        <div class="slider-track" id="carousel">
+          <div class="c-shimmer shimmer"></div><div class="c-shimmer shimmer"></div>
+          <div class="c-shimmer shimmer"></div><div class="c-shimmer shimmer"></div>
+          <div class="c-shimmer shimmer"></div><div class="c-shimmer shimmer"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1043,7 +1059,10 @@ body.light .stats-strip { background: rgba(255,255,255,0.6); }
      SCRIPT
 ══════════════════════════════ -->
 <script>
-const OMDB = "542d734d";
+const OMDB = "542d734d"; // Fallback — https://www.omdbapi.com/apikey.aspx
+const TMDB_KEY = "YOUR_TMDB_API_KEY"; // Optional extra fallback — https://www.themoviedb.org/settings/api
+const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
+// Primary poster source: Wikipedia REST API (free, no key needed)
 const FB = "https://placehold.co/300x450/0d1220/5a6a90?text=No+Poster";
 const UKEY = "mf_v4";
 let me="", curQ="", curPage=1, total=0, results=[], filtered=[], activeTerm="";
@@ -1078,95 +1097,212 @@ function goTo(sectionId){
   setTimeout(()=>byId(sectionId)?.scrollIntoView({behavior:"smooth"}),120);
 }
 
-/* ─── LATEST MOVIES — use title search (more reliable than IMDb ID) ─── */
+/* ─── LATEST MOVIES ─── */
 const LATEST_DB = [
-  {t:"Kalki 2898 AD",    y:"2024", g:"Action",          search:"Kalki 2898"},
-  {t:"Pushpa 2",         y:"2024", g:"Action, Crime",    search:"Pushpa 2 Rule"},
-  {t:"Amaran",           y:"2024", g:"War, Drama",       search:"Amaran 2024"},
-  {t:"Stree 2",          y:"2024", g:"Horror, Comedy",   search:"Stree 2"},
-  {t:"Fighter",          y:"2024", g:"Action",           search:"Fighter 2024 Hrithik"},
-  {t:"Aavesham",         y:"2024", g:"Action, Comedy",   search:"Aavesham 2024"},
-  {t:"Maharaja",         y:"2024", g:"Action, Thriller", search:"Maharaja 2024 Tamil"},
-  {t:"Lucky Baskhar",    y:"2024", g:"Crime, Thriller",  search:"Lucky Baskhar"},
-  {t:"Vettaiyan",        y:"2024", g:"Action, Drama",    search:"Vettaiyan 2024"},
-  {t:"Devara",           y:"2024", g:"Action",           search:"Devara 2024"},
-  {t:"Singham Again",    y:"2024", g:"Action",           search:"Singham Again 2024"},
-  {t:"The Goat Life",    y:"2024", g:"Drama",            search:"Goat Life 2024"},
-  {t:"Premalu",          y:"2024", g:"Romance, Comedy",  search:"Premalu 2024"},
-  {t:"Leo",              y:"2023", g:"Action, Thriller", search:"Leo 2023 Tamil"},
-  {t:"Jailer",           y:"2023", g:"Action",           search:"Jailer 2023"},
-  {t:"12th Fail",        y:"2023", g:"Drama, Biopic",    search:"12th Fail 2023"},
+  /* 2025 */
+  {t:"Coolie",            y:"2025", g:"Action",           id:"tt14783676", s:"Coolie 2025",              wiki:"Coolie_(film)"},
+  {t:"L2: Empuraan",      y:"2025", g:"Action, Thriller", id:"tt15354450", s:"Empuraan 2025",            wiki:"L2:_Empuraan"},
+  {t:"Sikandar",          y:"2025", g:"Action",           id:"tt14342594", s:"Sikandar 2025",            wiki:"Sikandar_(2025_film)"},
+  {t:"Sky Force",         y:"2025", g:"Action, War",      id:"tt22679982", s:"Sky Force 2025",           wiki:"Sky_Force_(film)"},
+  {t:"Raid 2",            y:"2025", g:"Action, Thriller", id:"",           s:"Raid 2 2025",              wiki:"Raid_2"},
+  {t:"Retro",             y:"2025", g:"Action, Drama",    id:"",           s:"Retro 2025 Suriya",        wiki:"Retro_(film)"},
+  {t:"Kannappa",          y:"2025", g:"Mythological",     id:"",           s:"Kannappa 2025",            wiki:"Kannappa_(film)"},
+  {t:"Azaad",             y:"2025", g:"Adventure, Drama", id:"tt28501591", s:"Azaad 2025",               wiki:"Azaad_(2025_film)"},
+  {t:"Thalapathy 69",     y:"2025", g:"Action",           id:"",           s:"Thalapathy 69",            wiki:"Thalapathy_69"},
+  /* 2024 */
+  {t:"Kalki 2898 AD",     y:"2024", g:"Action, Sci-Fi",   id:"tt12735488", s:"Kalki 2898",              wiki:"Kalki_2898_AD"},
+  {t:"Pushpa 2: The Rule",y:"2024", g:"Action, Crime",    id:"tt21806904", s:"Pushpa 2 The Rule",        wiki:"Pushpa_2:_The_Rule"},
+  {t:"Amaran",            y:"2024", g:"War, Drama",       id:"tt21830862", s:"Amaran 2024",              wiki:"Amaran_(film)"},
+  {t:"Stree 2",           y:"2024", g:"Horror, Comedy",   id:"tt17433160", s:"Stree 2 2024",             wiki:"Stree_2"},
+  {t:"Aavesham",          y:"2024", g:"Action, Comedy",   id:"tt29898088", s:"Aavesham 2024",            wiki:"Aavesham"},
+  {t:"Maharaja",          y:"2024", g:"Action, Thriller", id:"tt26843462", s:"Maharaja 2024 Tamil",      wiki:"Maharaja_(2024_film)"},
+  {t:"Lucky Baskhar",     y:"2024", g:"Crime, Thriller",  id:"tt27578197", s:"Lucky Baskhar",            wiki:"Lucky_Baskhar"},
+  {t:"Vettaiyan",         y:"2024", g:"Action, Drama",    id:"tt28044272", s:"Vettaiyan 2024",           wiki:"Vettaiyan"},
+  {t:"Devara",            y:"2024", g:"Action",           id:"tt14688344", s:"Devara Part 1",            wiki:"Devara:_Part_1"},
+  {t:"Singham Again",     y:"2024", g:"Action",           id:"tt14649386", s:"Singham Again 2024",       wiki:"Singham_Again"},
+  {t:"The Goat Life",     y:"2024", g:"Drama",            id:"tt14513498", s:"Aadujeevitham 2024",       wiki:"Aadujeevitham"},
+  {t:"Premalu",           y:"2024", g:"Romance, Comedy",  id:"tt27376682", s:"Premalu 2024",             wiki:"Premalu"},
+  {t:"Fighter",           y:"2024", g:"Action",           id:"tt14745510", s:"Fighter 2024 Hrithik",     wiki:"Fighter_(2024_film)"},
+  {t:"GOAT",              y:"2024", g:"Action, Thriller", id:"",           s:"Greatest of All Time 2024",wiki:"The_Greatest_of_All_Time_(film)"},
+  {t:"Meiyazhagan",       y:"2024", g:"Drama, Romance",   id:"",           s:"Meiyazhagan 2024",         wiki:"Meiyazhagan"},
+  /* 2023 */
+  {t:"Leo",               y:"2023", g:"Action, Thriller", id:"tt15687832", s:"Leo 2023 Tamil",           wiki:"Leo_(2023_film)"},
+  {t:"Jailer",            y:"2023", g:"Action",           id:"tt20461754", s:"Jailer 2023 Tamil",         wiki:"Jailer_(film)"},
+  {t:"12th Fail",         y:"2023", g:"Drama, Biopic",    id:"tt17827788", s:"12th Fail 2023",           wiki:"12th_Fail_(film)"},
+  {t:"Salaar",            y:"2023", g:"Action, Crime",    id:"tt13839582", s:"Salaar 2023",              wiki:"Salaar:_Part_1_%E2%80%93_Ceasefire"},
+  {t:"Animal",            y:"2023", g:"Action, Drama",    id:"tt13751694", s:"Animal 2023 Ranbir",       wiki:"Animal_(2023_film)"},
+  {t:"Ponniyin Selvan 2", y:"2023", g:"Historical, Drama",id:"tt11011202", s:"Ponniyin Selvan 2",        wiki:"Ponniyin_Selvan:_Part_Two"},
 ];
 
-/* Fetch poster via title search — more reliable */
-async function fetchPoster(searchTerm, year){
+/* ── POSTER CACHE (localStorage, 24h TTL) ── */
+const PC_KEY='flx_pc4'; /* bumped to clear any stale/broken cached URLs */
+function loadPC(){
   try{
-    const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB}&s=${encodeURIComponent(searchTerm)}&y=${year}&type=movie`);
-    const d = await r.json();
-    if(d.Response==="True" && d.Search?.length){
-      const hit = d.Search[0];
-      if(hit.Poster && hit.Poster!=="N/A") return {poster:hit.Poster, imdbID:hit.imdbID};
+    const raw=localStorage.getItem(PC_KEY);
+    if(!raw) return {};
+    const d=JSON.parse(raw), now=Date.now();
+    Object.keys(d).forEach(k=>{ if(now-d[k].t>86400000) delete d[k]; });
+    return d;
+  }catch{return {};}
+}
+function savePC(c){try{localStorage.setItem(PC_KEY,JSON.stringify(c));}catch{}}
+
+/* Inline SVG placeholder — works offline, no external service */
+function makePlaceholder(title){
+  const pals=[['0d0520','4c1d95'],['0a1628','1e3a5f'],['1a0800','7c2d12'],
+              ['001812','064e3b'],['180019','701a75'],['1a1100','78350f'],
+              ['00111a','075985'],['120028','4a1d96']];
+  const p=pals[title.charCodeAt(0)%pals.length];
+  const words=title.split(' ');const lines=[];let cur='';
+  words.forEach(w=>{const t=cur?cur+' '+w:w;if(t.length>15&&cur){lines.push(cur);cur=w;}else cur=t;});
+  if(cur)lines.push(cur);
+  const sy=220-((lines.length-1)*20)/2;
+  const tels=lines.map((l,i)=>`<text x="150" y="${sy+i*22}" font-size="14" font-weight="700" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="Arial,sans-serif">${l.replace(/&/g,'&amp;')}</text>`).join('');
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450"><defs><linearGradient id="gr" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#${p[0]}"/><stop offset="100%" stop-color="#${p[1]}"/></linearGradient></defs><rect width="300" height="450" fill="url(#gr)"/><rect x="20" y="20" width="260" height="410" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><rect x="118" y="145" width="64" height="64" rx="14" fill="rgba(255,255,255,0.08)"/><polygon points="136,160 136,193 164,176" fill="rgba(255,255,255,0.55)"/>${tels}</svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+
+/* Fetch poster — 1) Wikipedia MediaWiki API (origin=* for file:// CORS), 2) OMDB fallback */
+async function fetchPosterEntry(entry){
+  const ckey = entry.id || entry.s;
+  const cache = loadPC();
+  if(cache[ckey]?.poster) return {poster: cache[ckey].poster, imdbID: entry.id || null};
+
+  // 1) Wikipedia MediaWiki API — origin=* explicitly allows file:// CORS
+  const wikiTitle = entry.wiki || entry.t.replace(/\s+/g,'_');
+  try{
+    const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wikiTitle)}&prop=pageimages&format=json&pithumbsize=500&origin=*`;
+    const r = await fetch(url);
+    if(r.ok){
+      const d = await r.json();
+      const pages = d?.query?.pages;
+      const page = pages ? Object.values(pages)[0] : null;
+      const src = page?.thumbnail?.source;
+      if(src){
+        const c = loadPC(); c[ckey] = {poster: src, t: Date.now()}; savePC(c);
+        return {poster: src, imdbID: entry.id || null};
+      }
     }
-    // fallback: try without year
-    const r2 = await fetch(`https://www.omdbapi.com/?apikey=${OMDB}&s=${encodeURIComponent(searchTerm)}&type=movie`);
+  }catch(e){ console.warn('Wiki poster fail for', entry.t, e.message); }
+
+  // 2) OMDB fallback
+  try{
+    if(entry.id){
+      const r = await fetch(`https://www.omdbapi.com/?apikey=${OMDB}&i=${entry.id}`);
+      const d = await r.json();
+      if(d.Response==="True" && d.Poster && d.Poster!=="N/A"){
+        const c = loadPC(); c[ckey] = {poster: d.Poster, t: Date.now()}; savePC(c);
+        return {poster: d.Poster, imdbID: d.imdbID};
+      }
+    }
+    const r2 = await fetch(`https://www.omdbapi.com/?apikey=${OMDB}&s=${encodeURIComponent(entry.s)}&y=${entry.y}&type=movie`);
     const d2 = await r2.json();
     if(d2.Response==="True" && d2.Search?.length){
-      const hit = d2.Search[0];
-      if(hit.Poster && hit.Poster!=="N/A") return {poster:hit.Poster, imdbID:hit.imdbID};
+      const h = d2.Search[0];
+      if(h.Poster && h.Poster!=="N/A"){
+        const c = loadPC(); c[ckey] = {poster: h.Poster, t: Date.now()}; savePC(c);
+        return {poster: h.Poster, imdbID: h.imdbID};
+      }
     }
-  }catch(e){}
-  return {poster:null, imdbID:null};
+  }catch(e){ console.warn('OMDB poster fail for', entry.t, e.message); }
+
+  return {poster: null, imdbID: entry.id || null};
 }
 
 async function loadLatest(){
-  // Load in small batches to avoid hammering API
-  const batch1 = LATEST_DB.slice(0,8);
-  const batch2 = LATEST_DB.slice(8);
+  const cache=loadPC();
+  // STEP 1 — show ALL movies instantly (cached poster or placeholder)
+  LATEST_DB.forEach(m=>{
+    const ckey=m.id||m.s;
+    m.poster = cache[ckey]?.poster || makePlaceholder(m.t);
+  });
+  latestAll=[...LATEST_DB];
+  renderCarousel(curGenre);
+  buildHeroPosters();
+  buildAuthPosters();
 
-  const load = async (batch) => {
-    const res = await Promise.allSettled(
-      batch.map(m => fetchPoster(m.search, m.y))
-    );
-    res.forEach((r,i)=>{
-      const idx = LATEST_DB.indexOf(batch[i]);
-      const data = r.status==="fulfilled" ? r.value : {};
-      LATEST_DB[idx] = {...batch[i], poster:data.poster||null, imdbID:data.imdbID||null};
+  // STEP 2 — fetch real posters only for movies still on placeholder
+  const needFetch=LATEST_DB.filter(m=>!cache[m.id||m.s]?.poster);
+  if(!needFetch.length) return;
+
+  const batchSize=4;
+  for(let i=0;i<needFetch.length;i+=batchSize){
+    const batch=needFetch.slice(i,i+batchSize);
+    const res=await Promise.allSettled(batch.map(m=>fetchPosterEntry(m)));
+    res.forEach((r,idx)=>{
+      const data=r.status==="fulfilled"?r.value:{};
+      if(data.poster){
+        const dbIdx=LATEST_DB.indexOf(batch[idx]);
+        if(dbIdx>=0){
+          LATEST_DB[dbIdx].poster=data.poster;
+          if(data.imdbID) LATEST_DB[dbIdx].imdbID=data.imdbID;
+        }
+      }
     });
-    latestAll = LATEST_DB.filter(m=>m.poster);
+    latestAll=[...LATEST_DB];
     renderCarousel(curGenre);
-    buildHeroPosters();
-    buildAuthPosters();
-  };
+    if(i===0){buildHeroPosters();buildAuthPosters();}
+    if(i+batchSize<needFetch.length) await new Promise(r=>setTimeout(r,300));
+  }
+  buildHeroPosters();
+  buildAuthPosters();
+}
 
-  await load(batch1);
-  load(batch2); // second batch async, will update carousel when ready
+/* ── SLIDER STATE ── */
+/* marquee carousel — no JS step logic needed */
+function startAutoSlide(){}
+function stopAutoSlide(){}
+function slideDir(){}
+function slideTo(){}
+function updateDots(){}
+
+/* Inline SVG gradient placeholder — works offline, no external service */
+function makePlaceholder(title){
+  const pals=[['0d0520','4c1d95'],['0a1628','1e3a5f'],['1a0800','7c2d12'],
+              ['001812','064e3b'],['180019','701a75'],['1a1100','78350f'],
+              ['00111a','075985'],['120028','4a1d96']];
+  const p=pals[title.charCodeAt(0)%pals.length];
+  const words=title.split(' ');const lines=[];let cur='';
+  words.forEach(w=>{const t=cur?cur+' '+w:w;if(t.length>15&&cur){lines.push(cur);cur=w;}else cur=t;});
+  if(cur)lines.push(cur);
+  const sy=220-((lines.length-1)*20)/2;
+  const tels=lines.map((l,i)=>`<text x="150" y="${sy+i*22}" font-size="14" font-weight="700" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="Arial,sans-serif">${l.replace(/&/g,'&amp;')}</text>`).join('');
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450"><defs><linearGradient id="gr" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#${p[0]}"/><stop offset="100%" stop-color="#${p[1]}"/></linearGradient></defs><rect width="300" height="450" fill="url(#gr)"/><rect x="20" y="20" width="260" height="410" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><rect x="118" y="145" width="64" height="64" rx="14" fill="rgba(255,255,255,0.08)"/><polygon points="136,160 136,193 164,176" fill="rgba(255,255,255,0.55)"/>${tels}</svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
 
 function renderCarousel(genre){
-  curGenre = genre;
-  const row = byId("carousel");
-  const list = genre
-    ? latestAll.filter(m=>m.g.toLowerCase().includes(genre.toLowerCase()))
-    : latestAll;
+  curGenre=genre;
+  const row=byId('carousel');
+  if(!row) return;
+  const list=genre?latestAll.filter(m=>m.g.toLowerCase().includes(genre.toLowerCase())):latestAll;
   if(!list.length){
-    row.innerHTML=`<div class="empty-state" style="min-width:280px">No releases in this genre yet — check back soon!</div>`;
+    row.innerHTML=`<div class="empty-state" style="min-width:280px">No releases in this genre yet!</div>`;
     return;
   }
-  row.innerHTML = list.map(m=>`
-    <div class="c-card" onclick="nav('signup')" title="Sign up to save this">
-      <img src="${m.poster}" alt="${esc(m.t)}" loading="lazy"
-           onerror="this.src='${FB}';this.onerror=null;">
+  const cards=list.map(m=>{
+    const ph=makePlaceholder(m.t);
+    const src=m.poster||ph;
+    return `<div class="c-card" onclick="nav('signup')" title="Sign up to save this">
+      <img src="${src}" alt="${esc(m.t)}" loading="lazy" onerror="this.onerror=null;this.src='${ph}';">
       <div class="c-card-body">
         <div class="c-card-title">${esc(m.t)}</div>
         <div class="c-card-meta">${m.y}</div>
-        <div class="c-badge">${esc(m.g.split(",")[0].trim())}</div>
+        <div class="c-badge">${esc(m.g.split(',')[0].trim())}</div>
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join('');
+  /* Double cards for seamless infinite loop (CSS animates 0 → -50%) */
+  row.innerHTML = cards + cards;
+  /* Restart animation smoothly */
+  row.style.animation='none';
+  row.offsetHeight; /* force reflow */
+  row.style.animation='';
 }
 
-function filterG(el, genre){
-  byId("genreRow").querySelectorAll(".gpill").forEach(p=>p.classList.remove("on"));
-  el.classList.add("on");
+function filterG(el,genre){
+  byId('genreRow').querySelectorAll('.gpill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
   renderCarousel(genre);
 }
 
@@ -1175,11 +1311,15 @@ function buildHeroPosters(){
   if(!four.length) return;
   const stack = byId("posterStack");
   const classes = ["c0","c1","c2","c3"];
-  stack.innerHTML = four.map((m,i)=>`
+  stack.innerHTML = four.map((m,i)=>{
+    const ph = makePlaceholder(m.t);
+    const src = m.poster || ph;
+    return `
     <div class="p-card ${classes[i]}">
-      <img src="${m.poster}" alt="${esc(m.t)}" style="width:100%;height:100%;object-fit:cover;"
-           onerror="this.parentElement.style.display='none'">
-    </div>`).join("");
+      <img src="${src}" alt="${esc(m.t)}" style="width:100%;height:100%;object-fit:cover;"
+           onerror="this.onerror=null;this.src='${ph}';">
+    </div>`;
+  }).join("");
 }
 
 function buildAuthPosters(){
@@ -1187,11 +1327,15 @@ function buildAuthPosters(){
   ["loginPosters","signupPosters"].forEach(id=>{
     const el = byId(id);
     if(!el) return;
-    el.innerHTML = three.map(m=>`
+    el.innerHTML = three.map(m=>{
+      const ph = makePlaceholder(m.t);
+      const src = m.poster || ph;
+      return `
       <div class="auth-poster">
-        <img src="${m.poster}" alt="${esc(m.t)}"
-             onerror="this.parentElement.style.background='var(--surface-3)';this.style.display='none'">
-      </div>`).join("");
+        <img src="${src}" alt="${esc(m.t)}" style="width:100%;height:100%;object-fit:cover;"
+             onerror="this.onerror=null;this.src='${ph}';">
+      </div>`;
+    }).join("");
   });
 }
 
@@ -1538,13 +1682,18 @@ function getAIRecs(){
       const highRated=unique.filter(m=>ratings[m.imdbID]>=4);
       const lowRated=unique.filter(m=>ratings[m.imdbID]<=2&&ratings[m.imdbID]>0);
       const sw=(curQ||"").toLowerCase().split(/\s+/);
-      const alreadyKnown=new Set(unique.map(m=>m.title?.toLowerCase()));
+      // OMDB uses Title (capital T), so normalise both sides for the seen-set
+      const alreadyKnown=new Set(unique.map(m=>(m.Title||m.title||"").toLowerCase()));
+      // Use a per-session random seed so picks vary on each call
+      const sessionSeed = (sessionStorage.getItem('aiSeed')||0)*1 + 1;
+      sessionStorage.setItem('aiSeed', sessionSeed);
+      const rng = ()=> Math.sin(sessionSeed * 9301 + Math.random() * 49297) * 0.5 + 0.5;
       const scored=MOVIE_DB.filter(m=>!alreadyKnown.has(m.title.toLowerCase())).map(m=>{
         let s=0;
         sw.forEach(w=>{if(w.length<3)return;if(m.tags.some(t=>t.includes(w)))s+=3;if(m.genre.toLowerCase().includes(w))s+=2;if(m.language.toLowerCase().includes(w))s+=3;if(m.title.toLowerCase().includes(w))s+=1;});
-        highRated.forEach(rm=>{(rm.Title||"").toLowerCase().split(/\s+/).forEach(w=>{if(w.length>3&&m.tags.some(t=>t.includes(w)))s+=2;});});
-        lowRated.forEach(rm=>{(rm.Title||"").toLowerCase().split(/\s+/).forEach(w=>{if(w.length>3&&m.tags.some(t=>t.includes(w)))s-=1;});});
-        s+=Math.max(0,(parseInt(m.year)||2000)-2010)*0.15+Math.random()*0.5;
+        highRated.forEach(rm=>{(rm.Title||rm.title||"").toLowerCase().split(/\s+/).forEach(w=>{if(w.length>3&&m.tags.some(t=>t.includes(w)))s+=2;});});
+        lowRated.forEach(rm=>{(rm.Title||rm.title||"").toLowerCase().split(/\s+/).forEach(w=>{if(w.length>3&&m.tags.some(t=>t.includes(w)))s-=1;});});
+        s+=Math.max(0,(parseInt(m.year)||2000)-2010)*0.15 + (rng()*3.5);
         return{...m,s};
       }).sort((a,b)=>b.s-a.s);
       const picks=[]; const lc={};
