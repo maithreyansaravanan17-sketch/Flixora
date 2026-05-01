@@ -82,6 +82,9 @@ body {
 @keyframes slideInFromRight { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes bounce { 0%, 20%, 53%, 80%, 100% { transform: translateY(0); } 40%, 43% { transform: translateY(-10px); } 70% { transform: translateY(-5px); } }
 @keyframes posterGlow { 0%, 100% { box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 2px rgba(138, 120, 255, 0.3); } 50% { box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 4px rgba(138, 120, 255, 0.6); } }
+@keyframes shimmerLoad { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+@keyframes fadeInScale { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes slideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
 
 .fu1 { animation: fadeUp 0.8s 0.05s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .fu2 { animation: fadeUp 0.8s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both; }
@@ -251,9 +254,10 @@ body.light .hero-grid-lines {
   border-color: var(--brand);
   animation: posterGlow 2s ease-in-out infinite;
   z-index: 10 !important;
+  transform: scale(1.05) translateZ(0);
 }
-.p-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
-.p-card:hover img { transform: scale(1.08); filter: brightness(1.1); }
+.p-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.p-card:hover img { transform: scale(1.1); filter: brightness(1.2) contrast(1.1); }
 .p-card.c0 { width: 220px; height: 320px; top: 80px; left: 0; animation: float 6s ease-in-out infinite; z-index: 3; transform: translateZ(40px); }
 .p-card.c1 { width: 190px; height: 280px; top: 20px; left: 130px; animation: floatB 5s 1s ease-in-out infinite; z-index: 2; transform: translateZ(20px); filter: brightness(0.8); }
 .p-card.c2 { width: 170px; height: 250px; top: 120px; left: 210px; animation: float 6.5s 0.5s ease-in-out infinite; z-index: 1; transform: translateZ(0px); filter: brightness(0.6); }
@@ -364,12 +368,13 @@ body.light .stats-strip { background: rgba(255,255,255,0.6); }
 }
 .c-card:hover { 
   border-color: var(--brand); 
-  transform: translateY(-12px) scale(1.02); 
-  box-shadow: 0 25px 60px rgba(138, 120, 255, 0.3); 
+  transform: translateY(-15px) scale(1.03); 
+  box-shadow: 0 30px 80px rgba(138, 120, 255, 0.4); 
+  animation: fadeInScale 0.4s ease-out;
 }
 .c-card:hover::after { opacity: 1; }
-.c-card img { width: 100%; height: 320px; object-fit: cover; display: block; background: var(--surface-2); transition: transform 0.5s ease; }
-.c-card:hover img { transform: scale(1.08); filter: brightness(1.1); }
+.c-card img { width: 100%; height: 320px; object-fit: cover; display: block; background: var(--surface-2); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.c-card:hover img { transform: scale(1.12); filter: brightness(1.15) contrast(1.1); }
 .c-card-body { padding: 16px; position: relative; z-index: 1; background: var(--surface); }
 .c-card-title { font-weight: 800; font-size: 1.05rem; line-height: 1.3; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .c-card-meta { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
@@ -431,14 +436,15 @@ body.light .stats-strip { background: rgba(255,255,255,0.6); }
 .auth-poster:nth-child(2) { transform: translateZ(30px) scale(1.05); z-index: 2; box-shadow: 0 24px 60px rgba(0,0,0,0.6); border-color: rgba(138,120,255,0.4); animation: slideInFromLeft 0.8s 0.2s ease-out both; }
 .auth-poster:nth-child(3) { transform: rotate(5deg) translateY(20px); z-index: 1; animation: slideInFromLeft 0.8s 0.4s ease-out both; }
 .auth-poster:hover { 
-  transform: scale(1.15) translateZ(50px) rotate(0deg) !important; 
+  transform: scale(1.2) translateZ(60px) rotate(0deg) !important; 
   z-index: 10 !important; 
   border-color: var(--brand) !important;
-  box-shadow: 0 30px 80px rgba(138, 120, 255, 0.4) !important;
+  box-shadow: 0 40px 100px rgba(138, 120, 255, 0.5) !important;
+  animation: fadeInScale 0.3s ease-out;
 }
 .auth-poster:hover::before { opacity: 1; }
-.auth-poster img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-.auth-poster:hover img { transform: scale(1.1); filter: brightness(1.1); }
+.auth-poster img { width: 100%; height: 100%; object-fit: cover; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.auth-poster:hover img { transform: scale(1.15); filter: brightness(1.2) contrast(1.1); }
 .auth-right {
   display: flex; align-items: center; justify-content: center;
   padding: 40px; background: var(--bg); position: relative;
@@ -1099,7 +1105,9 @@ body.light .stats-strip { background: rgba(255,255,255,0.6); }
      SCRIPT
 ══════════════════════════════ -->
 <script>
-const POSTER_API = "https://picsum.photos/seed/"; // Fallback poster service
+const TMDB_API_KEY = "3fd2be91f55c7361b7802cafe825f2e0"; // Public TMDB API key
+const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 const FB = "https://placehold.co/300x450/0d1220/5a6a90?text=No+Poster";
 const UKEY = "mf_v4";
 let me="", curQ="", curPage=1, total=0, results=[], filtered=[], activeTerm="";
@@ -1190,147 +1198,275 @@ function makePlaceholder(title){
 }
 
 function makeEnhancedPoster(title, year, genre){
-  // Enhanced color palettes for different movie types
-  const palettes = {
-    'action': [['#1a1a2e', '#16213e'], ['#0f3460', '#533483']],
-    'drama': [['#2d1b69', '#0f3460'], ['#1e3a5f', '#16213e']],
-    'thriller': [['#0d1220', '#1a1a2e'], ['#16213e', '#2d1b69']],
-    'comedy': [['#f39c12', '#e67e22'], ['#d68910', '#ca6f1e']],
-    'horror': [['#2c3e50', '#34495e'], ['#1a1a2e', '#0d1220']],
-    'romance': [['#8e44ad', '#9b59b6'], ['#e91e63', '#f06292']],
-    'sci-fi': [['#006064', '#00838f'], ['#00acc1', '#00bcd4']],
-    'default': [['#0d1220', '#1a1a2e'], ['#16213e', '#2d1b69']]
-  };
-  
-  // Select palette based on genre
-  let genreKey = 'default';
-  if(genre && typeof genre === 'string') {
-    const genreLower = genre.toLowerCase();
-    for(const key in palettes) {
-      if(genreLower.includes(key)) {
-        genreKey = key;
-        break;
+  try {
+    console.log('Creating poster for:', title, year, genre);
+    
+    // Enhanced color palettes for different movie types
+    const palettes = {
+      'action': [['#FF6B6B', '#4ECDC4'], ['#FF8E53', '#FE6B8B']],
+      'drama': [['#667EEA', '#764BA2'], ['#F093FB', '#F5576C']],
+      'thriller': [['#2D3748', '#4A5568'], ['#1A202C', '#2D3748']],
+      'comedy': [['#F6D55C', '#ED553B'], ['#FCA311', '#F77F00']],
+      'horror': [['#1A1A2E', '#16213E'], ['#0F3460', '#533483']],
+      'romance': [['#FF6B9D', '#C44569'], ['#F8B195', '#F67280']],
+      'sci-fi': [['#00D9FF', '#0099CC'], ['#005F99', '#003D5C']],
+      'default': [['#667EEA', '#764BA2'], ['#F093FB', '#F5576C']]
+    };
+    
+    // Select palette based on genre
+    let genreKey = 'default';
+    if(genre && typeof genre === 'string') {
+      const genreLower = genre.toLowerCase();
+      for(const key in palettes) {
+        if(genreLower.includes(key)) {
+          genreKey = key;
+          break;
+        }
       }
     }
-  }
-  
-  const palette = palettes[genreKey];
-  const colorIndex = (title.charCodeAt(0) + (year ? year.charCodeAt(0) : 0)) % palette.length;
-  const colors = palette[colorIndex];
-  
-  // Generate unique pattern based on title
-  const seed = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const pattern = seed % 5;
-  
-  // Format title for display
-  const words = title.split(' ');
-  const lines = [];
-  let current = '';
-  words.forEach(word => {
-    const test = current ? current + ' ' + word : word;
-    if(test.length > 18 && current) {
-      lines.push(current);
-      current = word;
+    
+    const palette = palettes[genreKey];
+    const colorIndex = Math.abs(title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % palette.length;
+    const colors = palette[colorIndex];
+    
+    // Generate unique pattern based on title
+    const seed = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const pattern = seed % 5;
+    
+    // Format title for display
+    const words = title.split(' ');
+    const lines = [];
+    let current = '';
+    words.forEach(word => {
+      const test = current ? current + ' ' + word : word;
+      if(test.length > 15 && current) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = test;
+      }
+    });
+    if(current) lines.push(current);
+    
+    const startY = 200 - ((lines.length - 1) * 30) / 2;
+    
+    // Create text elements
+    const textElements = lines.map((line, i) => {
+      const y = startY + (i * 30);
+      return `<text x="150" y="${y}" font-size="18" font-weight="900" text-anchor="middle" fill="#FFFFFF" font-family="Arial Black, sans-serif" stroke="#000000" stroke-width="1">${line.replace(/&/g, '&amp;')}</text>`;
+    }).join('');
+    
+    // Add year if available
+    const yearText = year ? `<text x="150" y="${startY + lines.length * 30 + 25}" font-size="14" font-weight="700" text-anchor="middle" fill="#FFD700" font-family="Arial, sans-serif">${year}</text>` : '';
+    
+    // Add genre badge if available
+    const genreBadge = genre && typeof genre === 'string' ? 
+      `<rect x="50" y="410" width="200" height="25" rx="12" fill="rgba(0,0,0,0.7)" stroke="#FFD700" stroke-width="2"/>
+       <text x="150" y="427" font-size="12" font-weight="800" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif">${genre.split(',')[0].trim().toUpperCase()}</text>` : '';
+    
+    // Create pattern overlay
+    let patternOverlay = '';
+    if(pattern === 0) {
+      patternOverlay = `<circle cx="60" cy="80" r="35" fill="rgba(255,255,255,0.1)"/><circle cx="240" cy="370" r="25" fill="rgba(255,255,255,0.08)"/>`;
+    } else if(pattern === 1) {
+      patternOverlay = `<polygon points="40,60 80,80 60,120 20,120 0,80" fill="rgba(255,255,255,0.1)"/><polygon points="220,340 260,360 240,400 200,400 180,360" fill="rgba(255,255,255,0.08)"/>`;
+    } else if(pattern === 2) {
+      patternOverlay = `<rect x="30" y="50" width="50" height="50" rx="8" fill="rgba(255,255,255,0.1)" transform="rotate(45 55 75)"/><rect x="220" y="350" width="30" height="30" rx="6" fill="rgba(255,255,255,0.08)" transform="rotate(45 235 365)"/>`;
+    } else if(pattern === 3) {
+      patternOverlay = `<ellipse cx="70" cy="80" rx="40" ry="25" fill="rgba(255,255,255,0.1)"/><ellipse cx="230" cy="370" rx="30" ry="18" fill="rgba(255,255,255,0.08)"/>`;
     } else {
-      current = test;
+      patternOverlay = `<path d="M 40 70 Q 100 40 150 70 T 260 70" fill="rgba(255,255,255,0.1)"/><path d="M 20 380 Q 120 350 220 380 T 280 380" fill="rgba(255,255,255,0.08)"/>`;
     }
-  });
-  if(current) lines.push(current);
-  
-  const startY = 200 - ((lines.length - 1) * 25) / 2;
-  
-  // Create text elements
-  const textElements = lines.map((line, i) => {
-    const y = startY + (i * 25);
-    return `<text x="150" y="${y}" font-size="16" font-weight="800" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="Arial, sans-serif">${line.replace(/&/g, '&amp;')}</text>`;
-  }).join('');
-  
-  // Add year if available
-  const yearText = year ? `<text x="150" y="${startY + lines.length * 25 + 20}" font-size="12" font-weight="600" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Arial, sans-serif">${year}</text>` : '';
-  
-  // Add genre badge if available
-  const genreBadge = genre && typeof genre === 'string' ? 
-    `<rect x="20" y="400" width="260" height="30" rx="15" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-     <text x="150" y="420" font-size="11" font-weight="700" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Arial, sans-serif">${genre.split(',')[0].trim().toUpperCase()}</text>` : '';
-  
-  // Create pattern overlay
-  let patternOverlay = '';
-  if(pattern === 0) {
-    patternOverlay = `<circle cx="75" cy="100" r="40" fill="rgba(255,255,255,0.05)"/><circle cx="225" cy="350" r="30" fill="rgba(255,255,255,0.03)"/>`;
-  } else if(pattern === 1) {
-    patternOverlay = `<polygon points="50,50 100,80 80,130 20,130 0,80" fill="rgba(255,255,255,0.04)"/><polygon points="200,320 250,350 230,400 170,400 150,350" fill="rgba(255,255,255,0.03)"/>`;
-  } else if(pattern === 2) {
-    patternOverlay = `<rect x="40" y="60" width="60" height="60" rx="10" fill="rgba(255,255,255,0.04)" transform="rotate(45 70 90)"/><rect x="200" y="330" width="40" height="40" rx="8" fill="rgba(255,255,255,0.03)" transform="rotate(45 220 350)"/>`;
-  } else if(pattern === 3) {
-    patternOverlay = `<ellipse cx="80" cy="90" rx="50" ry="30" fill="rgba(255,255,255,0.04)"/><ellipse cx="220" cy="360" rx="35" ry="20" fill="rgba(255,255,255,0.03)"/>`;
-  } else {
-    patternOverlay = `<path d="M 50 80 Q 100 50 150 80 T 250 80" fill="rgba(255,255,255,0.04)"/><path d="M 30 370 Q 100 340 170 370 T 270 370" fill="rgba(255,255,255,0.03)"/>`;
+    
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
+      <defs>
+        <linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${colors[0]}"/>
+          <stop offset="100%" stop-color="${colors[1]}"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <filter id="shadow">
+          <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
+        </filter>
+      </defs>
+      <rect width="300" height="450" fill="url(#gr)"/>
+      <rect x="10" y="10" width="280" height="430" rx="15" fill="rgba(0,0,0,0.2)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+      ${patternOverlay}
+      <rect x="100" y="150" width="100" height="100" rx="15" fill="rgba(0,0,0,0.5)" stroke="#FFD700" stroke-width="2" filter="url(#shadow)"/>
+      <polygon points="130,170 130,230 170,200" fill="#FFD700" filter="url(#glow)"/>
+      ${textElements}
+      ${yearText}
+      ${genreBadge}
+    </svg>`;
+    
+    const dataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    console.log('Generated poster URI length:', dataUri.length);
+    return dataUri;
+  } catch(e) {
+    console.error('Error generating poster:', e);
+    // Fallback simple poster
+    return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450"><rect width="300" height="450" fill="%23667EEA"/><text x="150" y="225" font-size="20" font-weight="bold" text-anchor="middle" fill="white">${title}</text></svg>`;
   }
-  
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450">
-    <defs>
-      <linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="${colors[0]}"/>
-        <stop offset="100%" stop-color="${colors[1]}"/>
-      </linearGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-      <filter id="shadow">
-        <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.3"/>
-      </filter>
-    </defs>
-    <rect width="300" height="450" fill="url(#gr)"/>
-    <rect x="15" y="15" width="270" height="420" rx="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    ${patternOverlay}
-    <rect x="110" y="160" width="80" height="80" rx="16" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1" filter="url(#shadow)"/>
-    <polygon points="135,180 135,220 165,200" fill="rgba(255,255,255,0.7)" filter="url(#glow)"/>
-    ${textElements}
-    ${yearText}
-    ${genreBadge}
-  </svg>`;
-  
-  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
-/* Generate enhanced local poster that works when hosted */
+/* Fetch official poster from multiple sources with enhanced fallbacks */
 async function fetchPosterEntry(entry){
   const ckey=entry.id||entry.s;
   const cache=loadPC();
   
-  // Check cache first
-  if(cache[ckey]?.poster && cache[ckey].poster !== makePlaceholder(entry.t)) {
-    return{
-      poster:cache[ckey].poster,
-      imdbID:entry.id||null,
-      genre:cache[ckey].genre || entry.g,
-      year:cache[ckey].year || entry.y,
-      title:cache[ckey].title || entry.t
-    };
+  // Check cache first (but only cache official posters for 1 hour)
+  if(cache[ckey]?.poster && cache[ckey].poster !== makePlaceholder(entry.t) && !cache[ckey].poster.startsWith('data:image/svg+xml')) {
+    const cacheAge = Date.now() - cache[ckey].t;
+    if(cacheAge < 3600000) { // 1 hour cache for official posters
+      return{
+        poster:cache[ckey].poster,
+        imdbID:entry.id||null,
+        genre:cache[ckey].genre || entry.g,
+        year:cache[ckey].year || entry.y,
+        title:cache[ckey].title || entry.t
+      };
+    }
   }
   
-  console.log('Generating enhanced local poster for:', entry.t);
+  console.log('🔍 Searching for official poster for:', entry.t);
   
-  // Generate enhanced SVG poster with unique design for each movie
-  const posterUrl = makeEnhancedPoster(entry.t, entry.y, entry.g);
+  // Try multiple poster sources
+  const posterSources = [
+    {
+      name: 'TMDB API',
+      fetch: async () => {
+        const searchQueries = [
+          `${entry.t} ${entry.y}`,
+          entry.t,
+          entry.s,
+          entry.t.replace(/:\s*/g, ' ')
+        ];
+        
+        for(const query of searchQueries) {
+          try {
+            const searchUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&year=${entry.y}`;
+            const searchResponse = await fetch(searchUrl);
+            const searchData = await searchResponse.json();
+            
+            if(searchData.results && searchData.results.length > 0) {
+              const bestMatch = searchData.results.find(m => 
+                m.title.toLowerCase().includes(entry.t.toLowerCase()) || 
+                entry.t.toLowerCase().includes(m.title.toLowerCase())
+              ) || searchData.results[0];
+              
+              if(bestMatch.poster_path) {
+                const officialPoster = `${TMDB_IMAGE_BASE}${bestMatch.poster_path}`;
+                
+                // Get detailed info
+                const detailUrl = `${TMDB_BASE_URL}/movie/${bestMatch.id}?api_key=${TMDB_API_KEY}`;
+                const detailResponse = await fetch(detailUrl);
+                const detailData = await detailResponse.json();
+                
+                const genre = detailData.genres ? detailData.genres.map(g => g.name).join(', ') : entry.g;
+                const year = detailData.release_date ? detailData.release_date.split('-')[0] : entry.y;
+                
+                return {
+                  poster: officialPoster,
+                  genre: genre,
+                  year: year,
+                  title: detailData.title || entry.t,
+                  source: 'TMDB'
+                };
+              }
+            }
+          } catch(e) {
+            continue;
+          }
+        }
+        return null;
+      }
+    },
+    {
+      name: 'Poster Service',
+      fetch: async () => {
+        // Use a reliable poster service with movie title
+        const seed = entry.t.replace(/\s+/g, '-').toLowerCase();
+        const posterUrl = `https://picsum.photos/seed/${seed}-${entry.y}/300/450`;
+        
+        try {
+          const testResponse = await fetch(posterUrl, { method: 'HEAD' });
+          if(testResponse.ok) {
+            return {
+              poster: posterUrl,
+              genre: entry.g,
+              year: entry.y,
+              title: entry.t,
+              source: 'Poster Service'
+            };
+          }
+        } catch(e) {
+          return null;
+        }
+      }
+    }
+  ];
   
-  // Cache the result
+  // Try each source
+  for(const source of posterSources) {
+    try {
+      console.log(`🎬 Trying ${source.name} for:`, entry.t);
+      const result = await source.fetch();
+      
+      if(result && result.poster) {
+        console.log(`✅ Success with ${source.name}:`, result.source);
+        
+        // Cache the result
+        const c=loadPC(); 
+        c[ckey]={
+          poster:result.poster,
+          t:Date.now(),
+          genre: result.genre,
+          year: result.year,
+          title: result.title,
+          official: result.source === 'TMDB',
+          source: result.source
+        }; 
+        savePC(c);
+        
+        return{
+          poster:result.poster,
+          imdbID:entry.id||null,
+          genre:result.genre,
+          year:result.year,
+          title:result.title
+        };
+      }
+    } catch(e) {
+      console.log(`❌ ${source.name} failed:`, e);
+      continue;
+    }
+  }
+  
+  // Final fallback to enhanced local poster
+  console.log('🎨 Using enhanced local poster as fallback for:', entry.t);
+  const fallbackPoster = makeEnhancedPoster(entry.t, entry.y, entry.g);
+  
+  // Cache the fallback
   const c=loadPC(); 
   c[ckey]={
-    poster:posterUrl,
+    poster:fallbackPoster,
     t:Date.now(),
     genre: entry.g,
     year: entry.y,
-    title: entry.t
+    title: entry.t,
+    official: false,
+    source: 'Local Generated'
   }; 
   savePC(c);
   
   return{
-    poster:posterUrl,
+    poster:fallbackPoster,
     imdbID:entry.id||null,
     genre:entry.g,
     year:entry.y,
@@ -1339,23 +1475,70 @@ async function fetchPosterEntry(entry){
 }
 
 async function loadLatest(){
-  console.log('Loading latest movies with enhanced local posters...');
+  console.log('🎬 Loading latest movies with official posters...');
   
-  // Generate enhanced posters for all movies instantly (no external dependencies)
-  LATEST_DB.forEach(m=>{
-    m.poster = makeEnhancedPoster(m.t, m.y, m.g);
-    m.title = m.t;
-    m.year = m.y;
-    m.genre = m.g;
-    console.log('Generated poster for:', m.t);
-  });
-  
-  latestAll=[...LATEST_DB];
-  renderCarousel(curGenre);
-  buildHeroPosters();
-  buildAuthPosters();
-  
-  console.log('Finished loading latest movies with enhanced local posters');
+  try {
+    // Step 1: Show instant placeholders first
+    LATEST_DB.forEach((m, index) => {
+      console.log(`📽️  Processing movie ${index + 1}: ${m.t}`);
+      m.poster = makeEnhancedPoster(m.t, m.y, m.g);
+      m.title = m.t;
+      m.year = m.y;
+      m.genre = m.g;
+    });
+    
+    latestAll=[...LATEST_DB];
+    
+    // Step 2: Update UI immediately with placeholders
+    renderCarousel(curGenre);
+    buildHeroPosters();
+    buildAuthPosters();
+    
+    // Step 3: Fetch official posters in batches
+    const batchSize = 3;
+    for(let i = 0; i < LATEST_DB.length; i += batchSize) {
+      const batch = LATEST_DB.slice(i, i + batchSize);
+      console.log(`🔄 Fetching batch ${Math.floor(i/batchSize)+1}/${Math.ceil(LATEST_DB.length/batchSize)}`);
+      
+      // Process batch in parallel
+      const promises = batch.map(async (movie, index) => {
+        try {
+          const data = await fetchPosterEntry(movie);
+          const dbIdx = i + index;
+          if(data.poster && dbIdx < LATEST_DB.length) {
+            LATEST_DB[dbIdx].poster = data.poster;
+            LATEST_DB[dbIdx].title = data.title || LATEST_DB[dbIdx].t;
+            LATEST_DB[dbIdx].year = data.year || LATEST_DB[dbIdx].y;
+            LATEST_DB[dbIdx].genre = data.genre || LATEST_DB[dbIdx].g;
+            
+            const isOfficial = data.poster && !data.poster.startsWith('data:image/svg+xml');
+            console.log(`${isOfficial ? '✅' : '🎨'} Updated: ${LATEST_DB[dbIdx].title} (${isOfficial ? 'Official' : 'Generated'} poster)`);
+            return true;
+          }
+        } catch(e) {
+          console.error('❌ Failed to fetch poster for', movie.t, e);
+          return false;
+        }
+      });
+      
+      await Promise.all(promises);
+      
+      // Update UI after each batch
+      latestAll=[...LATEST_DB];
+      renderCarousel(curGenre);
+      buildHeroPosters();
+      buildAuthPosters();
+      
+      // Add delay between batches to avoid rate limiting
+      if(i + batchSize < LATEST_DB.length) {
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+    
+    console.log('🎉 Finished loading latest movies with official posters');
+  } catch(e) {
+    console.error('💥 Error in loadLatest:', e);
+  }
 }
 
 /* ─── POSTER BUILDERS ─── */
